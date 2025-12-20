@@ -34,3 +34,5 @@ coverage.xml
 *.key
 *.crt
 credentials.json
+*.ipynb 
+*.ipynb_checkpoints/
