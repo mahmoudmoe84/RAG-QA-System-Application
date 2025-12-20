@@ -33,6 +33,7 @@ coverage.xml
 *.pem
 *.key
 *.crt
-credentials.json
-*.ipynb 
+credentials.json 
 *.ipynb_checkpoints/
+notebooks/
+*.ipynb
