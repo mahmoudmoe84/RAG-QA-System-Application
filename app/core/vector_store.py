@@ -76,7 +76,7 @@ class VectorStoreService:
                                           distance=Distance.COSINE))
             logger.info(f"Collection '{self.collection_name}' created successfully")
     
-    def add_documents(self,documents: list[Document],ids=ids) -> None:
+    def add_documents(self,documents: list[Document]) -> None:
         """add documents to the vector store"""
         if not documents:
             logger.warning("Non Documents to add to vector store")
