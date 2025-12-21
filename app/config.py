@@ -47,6 +47,9 @@ class Settings(BaseSettings):
     APP_NAME: str = "RAG Q&A System"
     APP_VERSION: str = "0.1.0"
     
+    #logging settings
+    LOG_LEVEL: str = Field("INFO", description="Logging level")
+    
 @lru_cashe
 def get_settings() -> Settings:
     """Get the application settings with caching."""
