@@ -29,4 +29,4 @@ langsmith==0.4.55
 # HTTP Client
 httpx
 datasets
-ragas==0.3.7
+ragas==0.3.7 

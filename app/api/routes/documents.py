@@ -1,65 +1,81 @@
-from fastapi import APIRouter , File , HTTPException ,UploadFile 
+"""Document management endpoints."""
+
+from fastapi import APIRouter, File, HTTPException, UploadFile
 
 from app.api.schemas import (
-    DocumentListResponse, DocumentUploadResponse,
-    ErrorResponse 
+    DocumentListResponse,
+    DocumentUploadResponse,
+    ErrorResponse,
 )
-
 from app.core.document_processor import DocumentProcessor
-from app.core.vector_store import VectorStoreService 
+from app.core.vector_store import VectorStoreService
 from app.utils.logger import get_logger
 
-
 logger = get_logger(__name__)
-router = APIRouter(prefix="/documents",tags=['Documents'])
+router = APIRouter(prefix="/documents", tags=["Documents"])
 
-@router.post("/upload",response_model=DocumentUploadResponse,
-             responses={400:{"model":ErrorResponse,"description":"invalid file type"},
-                        500:{"model":ErrorResponse,"description":"processing error"},},
-             summary="upload and ingest a document",
-             description="Upload and process a document file")
+
+@router.post(
+    "/upload",
+    response_model=DocumentUploadResponse,
+    responses={
+        400: {"model": ErrorResponse, "description": "Invalid file type"},
+        500: {"model": ErrorResponse, "description": "Processing error"},
+    },
+    summary="Upload and ingest a document",
+    description="Upload a document (PDF, TXT, or CSV) to be processed and added to the vector store.",
+)
 async def upload_document(
-    file:UploadFile = File(...,description="Document file to upload")
-    ) -> DocumentUploadResponse:    
-    """API endpoint to upload and ingest a document."""
+    file: UploadFile = File(..., description="Document file to upload"),
+) -> DocumentUploadResponse:
+    """Upload and process a document."""
+    logger.info(f"Received document upload: {file.filename}")
 
-    logger.info(f"Received upload request for file: {file.filename}")
-    #file.filename will work here because UploadFile has a filename attribute
-    
-    #validation for filename as its critical for processing
+    # Validate file
     if not file.filename:
-        logger.error("No filename provided in the upload request.")
-        raise HTTPException(status_code=400,detail="Filename is required.")
-    
+        raise HTTPException(
+            status_code=400,
+            detail="Filename is required",
+        )
+
     try:
-        #process document
+        # Process document
         processor = DocumentProcessor()
-        chunks = await processor.process_upload(file.file,file.filename)
-        
+        chunks = processor.process_upload(file.file, file.filename)
+
         if not chunks:
-            logger.error("No chunks were created from the uploaded document.")
-            raise HTTPException(status_code=400,detail="No content was extracted from the document.")
-        
-        # add to vector store
+            raise HTTPException(
+                status_code=400,
+                detail="No content could be extracted from the document",
+            )
+
+        # Add to vector store
         vector_store = VectorStoreService()
-        document_ids = await vector_store.add_documents(chunks)
-        
-        logger.info(f"Document '{file.filename}' uploaded and processed successfully."
-                    f"Chunks created: {len(chunks)}")
-        
+        document_ids = vector_store.add_documents(chunks)
+
+        logger.info(
+            f"Successfully processed {file.filename}: "
+            f"{len(chunks)} chunks, {len(document_ids)} documents"
+        )
+
         return DocumentUploadResponse(
-            message="Document uploaded and processed successfully.",
+            message="Document uploaded and processed successfully",
             filename=file.filename,
             chunks_created=len(chunks),
-            document_ids=document_ids,)
-    
+            document_ids=document_ids,
+        )
+
     except ValueError as e:
-        logger.warning(f"error processing the document: {e}")
-        raise HTTPException(status_code=400,detail=str(e))
+        logger.warning(f"Invalid file upload: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        logger.error(f"error processing the document: {e}", exc_info=True)
-        raise HTTPException(status_code=500,detail="Internal server error during document upload.")
-    
+        logger.error(f"Error processing document: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error processing document: {str(e)}",
+        )
+
+
 @router.get(
     "/info",
     response_model=DocumentListResponse,

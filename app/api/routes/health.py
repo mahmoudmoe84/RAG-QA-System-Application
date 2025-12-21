@@ -5,7 +5,7 @@ from datetime import datetime
 from fastapi import APIRouter, HTTPException
 
 from app import __version__
-from app.api.schemas import HealthResponse, ReadinessResponse
+from app.api.schemas import HealthCheckResponse, ReadinessResponse
 from app.core.vector_store import VectorStoreService
 from app.utils.logger import get_logger
 
@@ -15,14 +15,14 @@ router = APIRouter(prefix="/health", tags=["Health"])
 
 @router.get(
     "",
-    response_model=HealthResponse,
+    response_model=HealthCheckResponse,
     summary="Basic health check",
     description="Returns basic health status of the service.",
 )
-async def health_check() -> HealthResponse:
+async def health_check() -> HealthCheckResponse:
     """Basic health check endpoint."""
     logger.debug("Health check requested")
-    return HealthResponse(
+    return HealthCheckResponse(
         status="healthy",
         timestamp=datetime.utcnow(),
         version=__version__,

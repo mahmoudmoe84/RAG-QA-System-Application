@@ -13,7 +13,7 @@ from langchain_community.document_loaders import (
 )
 
 from langchain_core.documents import Document
-from langchain_core.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from app.config import get_settings
 from app.utils.logger import get_logger

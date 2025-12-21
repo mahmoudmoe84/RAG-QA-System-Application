@@ -50,7 +50,7 @@ class Settings(BaseSettings):
     #logging settings
     LOG_LEVEL: str = Field("INFO", description="Logging level")
     
-@lru_cashe
+@lru_cache
 def get_settings() -> Settings:
     """Get the application settings with caching."""
     return Settings()

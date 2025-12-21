@@ -34,7 +34,7 @@ def format_docs(docs:list[Document]):
 class RAGChain:
     """rag chain class."""
     
-    def __init(self,vector_store_service:VectorStoreService | None = None):
+    def __init__(self,vector_store_service:VectorStoreService | None = None):
         
         self.vector_store = vector_store_service or VectorStoreService()
         self.retriever = self.vector_store.get_retriever()
@@ -45,7 +45,7 @@ class RAGChain:
         self.llm = ChatOpenAI(
             model= settings.llm_model,
             temperature= settings.llm_temperature,
-            openai_api_key= settings.openai_api_key)
+            openai_api_key= settings.OPENAI_API_KEY)
         
         #create prompt
         self.prompt= ChatPromptTemplate.from_template(RAG_PROMPT_TEMPLATE)

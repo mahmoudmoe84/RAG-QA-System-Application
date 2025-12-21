@@ -5,7 +5,7 @@
 # ruff: noqa: E402, I001
 
 from dotenv import load_dotenv
-load_dotenv
+load_dotenv()
 
 from contextlib import asynccontextmanager
 #contextlib is a module that provides utilities for working with context managers and the asynccontextmanager is a decorator that allows you to define asynchronous context managers using async functions.
@@ -15,7 +15,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
-from app import __version__
+# from app import __version__
 #this imports the __version__ variable from the app package. This variable typically contains the version number of the application, which can be useful for logging, debugging, or displaying version information in API responses.
 from app.api.routes import documents , health, query 
 from app.config import get_settings
@@ -73,7 +73,7 @@ app.add_middleware(
 )
 
 #mount static files meaning that any requests to the /static URL path will be served from the app/static directory on the server.
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
+app.mount("/static", StaticFiles(directory="./static"), name="static")
 
 #include API routers
 app.include_router(health.router)
