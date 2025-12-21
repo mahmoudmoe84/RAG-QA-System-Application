@@ -2,7 +2,7 @@
 
 import asyncio 
 import time 
-from typing import any 
+from typing import Any 
 
 from datasets import Dataset 
 #datasets is a library for handling datasets in machine learning from Hugging Face
@@ -53,42 +53,42 @@ class RAGASEvaluator:
         #with ragas we need to use asynchronous context for evaluation
         #if async is not available ragas will not function properly and will raise errors.
         
-        async def aevaluate(self,question:str,
-                            answer:str,
-                            contexts:list[str]) -> dict[str,any]:
-            """execute async ragas evaluation"""
-            logger.debug(f"Starting RAGAS evaluation...for question: {question[:100]}")
-            start_time = time.time()
+    async def aevaluate(self,question:str,
+                        answer:str,
+                        contexts:list[str]) -> dict[str,any]:
+        """execute async ragas evaluation"""
+        logger.debug(f"Starting RAGAS evaluation...for question: {question[:100]}")
+        start_time = time.time()
+        
+        try: 
+            #prep dataset for ragas
+            dataset = self._prepare_dataset(question,answer,contexts)
             
-            try: 
-                #prep dataset for ragas
-                dataset = self._prepare_dataset(question,answer,contexts)
-                
-                #run evaluation in thread pool to avoid blocking event loop
-                result = await asyncio.to_thread(
-                    self._evaluate_with_timeout,
-                    dataset,)
-                
-                evaluation_time_ms = (time.time() - start_time) * 1000
-                
-                #extract scores 
-                scores = {"faithfulness": float(result["faithfulness"] if "faithfulness" in result else None),
-                          "answer_relevancy": float(result["answer_relevancy"] if "answer_relevancy" in result else None),
-                          "evaluation_time_ms": round(evaluation_time_ms,2),
-                          "error": None}
-                if self.settings.ragas_log_results:
-                    logger.info(
-                        f"Evaluation completed - "
-                        f"faithfulness={scores['faithfulness']}, "
-                        f"answer_relevancy={scores['answer_relevancy']}, "
-                        f"time={scores['evaluation_time_ms']}ms"
-                    )
+            #run evaluation in thread pool to avoid blocking event loop
+            result = await asyncio.to_thread(
+                self._evaluate_with_timeout,
+                dataset,)
+            
+            evaluation_time_ms = (time.time() - start_time) * 1000
+            
+            #extract scores 
+            scores = {"faithfulness": float(result["faithfulness"] if "faithfulness" in result else None),
+                        "answer_relevancy": float(result["answer_relevancy"] if "answer_relevancy" in result else None),
+                        "evaluation_time_ms": round(evaluation_time_ms,2),
+                        "error": None}
+            if self.settings.ragas_log_results:
+                logger.info(
+                    f"Evaluation completed - "
+                    f"faithfulness={scores['faithfulness']}, "
+                    f"answer_relevancy={scores['answer_relevancy']}, "
+                    f"time={scores['evaluation_time_ms']}ms"
+                )
+   
 
-                
-
-            except Exception as e:
-                logger.warning(f"Evaluation failed: {e}", exc_info=True)
-                return self._handle_evaluation_error(e)
+        except Exception as e:
+            logger.warning(f"Evaluation failed: {e}", exc_info=True)
+            return self._handle_evaluation_error(e)
+        return scores
 
     def _prepare_dataset(
         self,
@@ -138,7 +138,7 @@ class RAGASEvaluator:
             dataset,
             metrics=self.metrics,
             llm=self.llm,
-            embeddings=self.embeddings,
+            embeddings=self.embedding_model,
         )
 
         # Convert to dictionary and extract scores

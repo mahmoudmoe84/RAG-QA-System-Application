@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 from datetime import datetime
 from functools import cached_property, lru_cache
-
+from logging.handlers import TimedRotatingFileHandler
 
 def setup_logging(log_level: str = "INFO", log_to_file: bool = True, file_name: str = "app") -> None:
     """Configure logging for the application."""
@@ -30,7 +30,12 @@ def setup_logging(log_level: str = "INFO", log_to_file: bool = True, file_name: 
         log_file = Path.cwd() / f"logs/{file_name}_{timestamp}.log"
         log_file.parent.mkdir(exist_ok=True)
         
-        file_handler = logging.FileHandler(log_file)
+        file_handler = TimedRotatingFileHandler(
+            filename=str(log_file),
+            when="midnight",
+            interval=1,
+            backupCount=7,
+            encoding="utf-8",)
         file_handler.setFormatter(formatter)
         root_logger.addHandler(file_handler)
 
