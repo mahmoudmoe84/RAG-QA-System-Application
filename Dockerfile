@@ -43,7 +43,9 @@ COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 #copy application code
-COPY app/ ./app/
+COPY . .
+# first . in the copy command refers to the current directory on the host machine (where the Dockerfile is located),
+# and the second . refers to the /app directory inside the Docker container.
 
 #set ownership to non-root user 
 RUN chown -R appuser:appgroup /app
@@ -61,7 +63,7 @@ EXPOSE 8000
 
 #health check
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
- CMD python -c "import httpx; httpx.get('http://localhost:8000/health').raise_for_status()" || exit 1
+ CMD python -c "import httpx; httpx.get('http://localhost:8000/health')" || exit 1
 
 # command to run the application
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
