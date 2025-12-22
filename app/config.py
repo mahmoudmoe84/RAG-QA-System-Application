@@ -1,4 +1,4 @@
-"""Applicaiton configuration settings."""
+"""Application configuration settings."""
 
 from functools import lru_cache
 from pydantic import Field
@@ -52,7 +52,7 @@ class Settings(BaseSettings):
     API_HOST: str = "0.0.0.0"
     API_PORT: int = 8000
     
-    # Applicaiton info
+    # Application info
     APP_NAME: str = "RAG Q&A System"
     APP_VERSION: str = "0.1.0"
     
