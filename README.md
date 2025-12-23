@@ -26,224 +26,124 @@ A production-ready Retrieval-Augmented Generation (RAG) question-answering syste
 
 ## 📋 Prerequisites
 
-- Python 3.13 or higher
-- OpenAI API key
-- Qdrant Cloud account (or local Qdrant instance)
-- Docker and Docker Compose (optional, for containerized deployment)
+# RAG Q&A System
 
-## 🚀 Getting Started
+**Status: Complete**
 
-### 1. Clone the Repository
+This repository contains a working Retrieval-Augmented Generation (RAG) question-answering system built with FastAPI, LangChain, and Qdrant. The project includes document ingestion, embedding storage, semantic retrieval, a simple frontend, and automatic RAGAS-based evaluation.
 
-```bash
-git clone <your-repository-url>
-cd "RAG QA System Application"
-```
+## ✨ Highlights
 
-### 2. Set Up Environment Variables
+- Project marked as **Complete**: core features implemented and runnable locally or via Docker.
+- Document ingestion and chunking pipeline
+- Semantic search using OpenAI embeddings + Qdrant
+- RAG pipeline producing context-grounded responses
+- Built-in RAGAS evaluation for automatic response quality assessment
+- Dockerized for easy deployment
 
-Create a `.env` file in the root directory:
+## Quick Start
 
-```env
-# OpenAI Configuration
-OPENAI_API_KEY=your_openai_api_key_here
-
-# Qdrant Configuration (Cloud)
-QDRANT_URL=your_qdrant_url
-QDRANT_API_KEY=your_qdrant_api_key
-
-# Collection Settings
-COLLECTION_NAME=rag_documents
-
-# Document Processing
-CHUNK_SIZE=1000
-CHUNK_OVERLAP=200
-
-# Model Configuration
-llm_model=gpt-4o-mini
-llm_temperature=0.0
-embedding_model=text-embedding-3-small
-
-# Retrieval Settings
-top_k_retrieval=5
-
-# RAGAS Evaluation
-enable_ragas_evaluation=true
-ragas_timeout_seconds=30.0
-ragas_log_results=true
-
-# API Settings
-API_HOST=0.0.0.0
-API_PORT=8000
-
-# Application Info
-APP_NAME=RAG Q&A System
-APP_VERSION=0.1.0
-```
-
-### 3. Install Dependencies
-
-#### Using pip:
+1. Create a `.env` in the project root with your keys (see `app/config.py` for variables).
+2. Install dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-#### Using uv (recommended):
-
-```bash
-uv pip install -r requirements.txt
-```
-
-### 4. Run the Application
-
-#### Local Development:
+3a. Run locally (development):
 
 ```bash
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-#### Using Docker:
+3b. Or run with Docker Compose:
 
 ```bash
 docker-compose up --build
 ```
 
-### 5. Access the Application
+4. Open the app: http://localhost:8000 — API docs at `/docs`.
 
-- **Web Interface**: http://localhost:8000
-- **API Documentation**: http://localhost:8000/docs
-- **Alternative API Docs**: http://localhost:8000/redoc
+## Project Structure
 
-## 📂 Project Structure
+Top-level layout:
 
 ```
-RAG QA System Application/
-├── app/
-│   ├── __init__.py
-│   ├── config.py              # Application configuration
-│   ├── main.py                # FastAPI application entry point
-│   ├── api/                   # API routes and endpoints
-│   ├── core/                  # Core business logic
-│   │   ├── document_processor.py  # Document chunking and processing
-│   │   ├── embedding.py           # Embedding generation
-│   │   ├── rag_chain.py           # RAG pipeline implementation
-│   │   └── vector_store.py        # Vector database operations
-│   └── utils/
-│       └── logger.py          # Logging configuration
-├── static/                    # Frontend assets
-│   ├── index.html
-│   ├── css/
-│   └── js/
-├── notebooks/                 # Jupyter notebooks for experimentation
-│   ├── exp.ipynb
-│   └── data/
-│       └── raw/
-├── tests/                     # Test files
-├── sample_data/              # Sample documents for testing
-├── docker-compose.yml        # Docker Compose configuration
-├── Dockerfile               # Docker image configuration
-├── requirements.txt         # Python dependencies
-├── pyproject.toml          # Project metadata
-└── README.md               # This file
+app/                # FastAPI app, core logic and utilities
+static/             # Frontend assets
+notebooks/          # Experiments and notes
+data/               # Raw/sample data
+tests/              # Tests
+docker-compose.yml
+Dockerfile
+requirements.txt
+README.md
 ```
 
-## 🔧 Configuration
+Key files:
 
-The application uses environment variables for configuration. Key settings include:
+- `app/main.py`: FastAPI entrypoint
+- `app/config.py`: configuration and env variables
+- `app/core/document_processor.py`: chunking & preprocessing
+- `app/core/embedding.py`: embedding generation
+- `app/core/vector_store.py`: Qdrant interactions
+- `app/core/rag_chain.py`: RAG orchestration
 
-- **Document Processing**: Adjust `CHUNK_SIZE` and `CHUNK_OVERLAP` for optimal text splitting
-- **Model Selection**: Choose between different OpenAI models via `llm_model` and `embedding_model`
-- **Retrieval**: Control the number of retrieved documents with `top_k_retrieval`
-- **Evaluation**: Enable/disable RAGAS evaluation with `enable_ragas_evaluation`
+## Configuration
 
-## 📖 API Usage
+Edit environment variables (or `app/config.py`) to set:
 
-### Upload Documents
+- `OPENAI_API_KEY`, `QDRANT_*` settings
+- `COLLECTION_NAME`, `CHUNK_SIZE`, `CHUNK_OVERLAP`
+- `llm_model`, `embedding_model`, `top_k_retrieval`
+
+## API Examples
+
+Upload a document:
 
 ```bash
-curl -X POST "http://localhost:8000/api/upload" \
-  -F "file=@your_document.pdf"
+curl -X POST "http://localhost:8000/api/upload" -F "file=@/path/to/doc.pdf"
 ```
 
-### Ask Questions
+Ask a question:
 
 ```bash
-curl -X POST "http://localhost:8000/api/query" \
-  -H "Content-Type: application/json" \
-  -d '{"question": "What is the main topic of the document?"}'
+curl -X POST "http://localhost:8000/api/query" -H "Content-Type: application/json" -d '{"question":"Summarize the document."}'
 ```
 
-## 🧪 Development
+## Tests & Quality
 
-### Running Tests
+Run tests:
 
 ```bash
 pytest tests/
 ```
 
-### Code Quality
+Format and lint:
 
 ```bash
-# Format code
-black app/
-
-# Lint code
-ruff check app/
-
-# Type checking
-mypy app/
+black app/ && ruff check app/ && mypy app/
 ```
 
-## 📊 Evaluation Metrics
+## Docker
 
-The system uses RAGAS (Retrieval-Augmented Generation Assessment) to automatically evaluate:
-
-- **Context Relevancy**: How relevant retrieved documents are to the query
-- **Answer Relevancy**: How well the answer addresses the question
-- **Faithfulness**: How grounded the answer is in the retrieved context
-- **Answer Correctness**: Overall quality of the generated response
-
-## 🐳 Docker Deployment
-
-Build and run with Docker Compose:
+Build and run:
 
 ```bash
-# Build and start services
-docker-compose up -d
-
-# View logs
+docker-compose up -d --build
 docker-compose logs -f
-
-# Stop services
 docker-compose down
 ```
 
-## 🤝 Contributing
+## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+This repository is currently marked complete. If you find bugs or want to contribute improvements, open an issue or submit a Pull Request.
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+## License
 
-## 📝 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🙏 Acknowledgments
-
-- Built with [LangChain](https://langchain.com/)
-- Vector storage by [Qdrant](https://qdrant.tech/)
-- Powered by [OpenAI](https://openai.com/)
-- Evaluation framework by [RAGAS](https://github.com/explodinggradients/ragas)
-
-## 📧 Contact
-
-For questions or support, please open an issue in the repository.
+MIT
 
 ---
 
-**Note**: This is a naive RAG implementation (p1-naive-rag-run1). Future iterations may include advanced features like hybrid search, re-ranking, and multi-modal support.
+If you'd like, I can also commit these changes, run tests, or update the project version. Which would you prefer next?
+```
